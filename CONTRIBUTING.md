@@ -11,20 +11,27 @@
 git clone https://github.com/mitre/caldera.git --recursive
 ```
 
-2. Create a virtualenv:
+2. Install [uv](https://docs.astral.sh/uv/getting-started/installation/):
 ```
-python3 -m venv venv
-. venv/bin/activate
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-3. Install dependencies:
+3. Create the virtualenv (`.venv`) and install all dependencies, including development tools, exactly as pinned in `uv.lock`:
 ```
-pip install -r requirements.txt -r requirements-dev.txt
+uv sync
 ```
 
 4. Install the pre-commit hooks:
 ```
-pre-commit install --install-hooks
+uv run pre-commit install --install-hooks
+```
+
+## Managing dependencies
+Dependencies are declared in `pyproject.toml` and locked in `uv.lock`. Do not edit `uv.lock` by hand; commit both files together.
+```
+uv add <package>==<version>          # add a runtime dependency
+uv add --dev <package>               # add a development dependency
+uv lock --upgrade-package <package>  # upgrade a single package
 ```
 
 # Developing
@@ -36,20 +43,20 @@ We use the basic feature branch GIT flow. Fork this repository and create a feat
 # Run the tests
 Tests can be run by executing:
 ```
-python -m pytest --asyncio-mode=auto
+uv run pytest
 ```
 This will run all unit tests in your current development environment. Depending on the level of the change, you might need to run the test suite on various versions of Python. The unit testing pipeline will run the entire suite across multiple Python versions that we support when you submit your PR.
 
-We utilize `tox` to test Caldera in multiple versions of Python. This will only run if the interpreter is present on your system. To run tox, execute:
+We utilize `tox` (with the `tox-uv` plugin) to test Caldera in multiple versions of Python. uv will download any missing Python interpreter. To run tox, execute:
 ```
-tox
+uvx --with tox-uv tox
 ```
 
 # Code Coverage
-You can generate code coverage reports manually or by running `tox`. To run them manually, you must have `coverage` installed and run the following commands:
+You can generate code coverage reports manually or by running `tox`. To run them manually, run the following commands:
 ```
-coverage run -m pytest
-coverage report
-coverage html
+uv run coverage run -m pytest
+uv run coverage report
+uv run coverage html
 ```
 You can find the code coverage report in `htmlcov/index.html`

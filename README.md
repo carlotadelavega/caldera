@@ -59,25 +59,25 @@ These plugins are ready to use but are not included by default and are not maint
 These requirements are for the computer running the core framework:
 
 * Any Linux or MacOS
-  * Python 3.10+ (with Pip3)
+  * Python 3.10+
+  * [uv](https://docs.astral.sh/uv/getting-started/installation/) (Python package manager)
 * Recommended hardware to run on is 8GB+ RAM and 2+ CPUs
 * Recommended: [GoLang 1.24+](https://go.dev/doc/install) to dynamically compile GoLang-based agents.
 * NodeJS (v16+ recommended for v5 VueJS UI)
 
 ## Installation
 
-Note: we HIGHLY recommend installing Caldera in a Python virtual environment to avoid issues with pip packages. You can use an existing environment if you wish or create a new one from scratch:
+Python dependencies are managed with [uv](https://docs.astral.sh/uv/), which creates a virtual environment (`.venv`) in the project directory and installs the exact versions pinned in `uv.lock`. If you don't have uv yet:
 ```Bash
-python3 -m venv .calderavenv
-source .calderavenv/bin/activate
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
 Concise installation steps:
 ```Bash
 git clone https://github.com/apache/caldera.git --recursive
 cd caldera
-pip3 install -r requirements.txt
-python3 server.py --insecure --build
+uv sync --no-dev
+uv run server.py --insecure --build
 ```
 
 Full steps:
@@ -86,14 +86,14 @@ Start by cloning this repository recursively, passing the desired version/releas
 git clone https://github.com/apache/caldera.git --recursive --tag x.x.x
 ```
 
-Next, install the PIP requirements:
+Next, install the Python dependencies:
 ```Bash
-pip3 install -r requirements.txt
+uv sync --no-dev
 ```
 
 Finally, start the server.
 ```Bash
-python3 server.py --insecure --build
+uv run server.py --insecure --build
 ```
 
 The `--build` flag automatically installs any VueJS UI dependencies, bundles the UI into a dist directory and is served by the Caldera server. You will only have to use the `--build` flag again if you add any plugins or make any changes to the UI. Once started, log into http://localhost:8888 using the default credentials red/admin. Then go into Plugins -> Training and complete the capture-the-flag style training course to learn how to use Caldera.
@@ -152,7 +152,7 @@ If you'll be developing the UI, there are a few more additional installation ste
 
 1. Add the Magma submodule if you haven't already: `git submodule add https://github.com/mitre/magma`
 1. Install NodeJS dependencies: `cd plugins/magma && npm install && cd ..`
-1. Start the Caldera server with an additional flag: `python3 server.py --uidev localhost`
+1. Start the Caldera server with an additional flag: `uv run server.py --uidev localhost`
 
 Your Caldera server is available at http://localhost:8888 as usual, but there will now be a hot-reloading development server for the VueJS front-end available at http://localhost:3000. Both logs from the server and the front-end will display in the terminal you launched the server from.
 

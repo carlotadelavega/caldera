@@ -44,8 +44,9 @@ apt-get --no-install-recommends -y install git curl unzip python3-dev python3-pi
 rm -rf /var/lib/apt/lists/*
 
 # Install Golang from source (apt version is too out-of-date)
-RUN curl -k -L https://go.dev/dl/go1.25.0.linux-amd64.tar.gz -o go1.25.0.linux-amd64.tar.gz && \
-tar -C /usr/local -xzf go1.25.0.linux-amd64.tar.gz && rm go1.25.0.linux-amd64.tar.gz
+ARG TARGETARCH=amd64
+RUN curl -fkL https://go.dev/dl/go1.25.0.linux-${TARGETARCH}.tar.gz -o go.tar.gz && \
+    tar -C /usr/local -xzf go.tar.gz && rm go.tar.gz
 ENV PATH="$PATH:/usr/local/go/bin"
 RUN go version
 

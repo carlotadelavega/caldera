@@ -40,8 +40,19 @@ COPY --from=ui-build /usr/src/app/plugins/magma/dist /usr/src/app/plugins/magma/
 # From https://docs.docker.com/build/building/best-practices/
 # Install caldera dependencies
 RUN apt-get update && \
-apt-get --no-install-recommends -y install git curl unzip python3-dev python3-pip mingw-w64 zlib1g gcc && \
+apt-get --no-install-recommends -y install git curl unzip python3-dev mingw-w64 zlib1g gcc && \
 rm -rf /var/lib/apt/lists/*
+
+# Install uv (Python package manager) from its official image, pinned
+COPY --from=ghcr.io/astral-sh/uv:0.12.22 /uv /uvx /usr/local/bin/
+# Use Debian's python3 and keep dependencies in a project virtualenv
+# (/usr/src/app/.venv) instead of the system site-packages
+ENV UV_PYTHON_DOWNLOADS=never \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    UV_NO_CACHE=1 \
+    VIRTUAL_ENV=/usr/src/app/.venv \
+    PATH="/usr/src/app/.venv/bin:$PATH"
 
 # Install Golang from source (apt version is too out-of-date)
 ARG TARGETARCH=amd64
@@ -60,8 +71,8 @@ ARG TZ="UTC"
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
     echo $TZ > /etc/timezone
 
-# Install pip requirements
-RUN pip3 install --break-system-packages --no-cache-dir -r requirements.txt
+# Install Python dependencies exactly as pinned in uv.lock (fails if the lock is out of date)
+RUN uv sync --locked --no-dev
 
 # For offline atomic (disable it by default in slim image)
 # Disable atomic if this is not downloaded
@@ -94,7 +105,7 @@ RUN cd /usr/src/app/plugins/sandcat; ./update-agents.sh
 
 # Make sure emu can always be used in container (even if not enabled right now)
 RUN cd /usr/src/app/plugins/emu; \
-    pip3 install --break-system-packages -r requirements.txt
+    uv pip install -r requirements.txt
 
 STOPSIGNAL SIGINT
 

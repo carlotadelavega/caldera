@@ -19,10 +19,11 @@ tests/
 **/.pre-commit-config.yaml
 **/.travis.yml
 **/release.sh
-**/requirements-dev.txt
 **/tox.ini
 
 # Artifacts from previous use/compilation
+**/.venv/
+**/.tox/
 **/__pycache__/
 **/node_modules/
 **/plugins/magma/dist/
